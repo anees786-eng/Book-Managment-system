@@ -7,7 +7,7 @@ using namespace std;
 
 int main() {
     int choice;
-    bool BookkeeperLogIn = false;
+   bool BookkeeperLogIn ;
     User logInUser;
 
     do {
@@ -34,24 +34,12 @@ int main() {
                     cin >> bookkeeperChoice;
 
                     switch (bookkeeperChoice) {
-                    case 1:
-                        addBook();
-                        break;
-                    case 2:
-                        displayBooks();
-                        break;
-                    case 3:
-                        searchBooks();
-                        break;
-                    case 4:
-                        updateBook();
-                        break;
-                    case 5:
-                        deletebooks();
-                        break;
-                    case 6:
-                        cout << "Logging out.\n";
-                        break;
+                    case 1: addBook(); break;
+                    case 2: displayBooks();break;
+                    case 3: searchBooks();break;
+                    case 4: updateBook(); break;
+                    case 5: deletebooks(); break;
+                    case 6: cout << "Logging out.\n";     break;
                     default:
                         cout << "Invalid choice. Try again.\n";
                     }
@@ -59,48 +47,43 @@ int main() {
             }
             break;
 
-        case 2:
-            registerUser();
-            break;
-
+        case 2:registerUser(); break;
+          
         case 3:
             if (userLogin(logInUser)) {
                 int userChoice;
                 do {
                     cout << "\nUser Menu\n";
                     cout << "1. Borrow Book\n";
-                    cout << "2. Search Books\n";
-                    cout << "3. Logout\n";
+                    cout << "2.  Return Books\n";
+                    cout << "3. Search Books\n";
+                    cout << "4. Logout\n";
                     cout << "Enter your choice: ";
                     cin >> userChoice;
 
                     switch (userChoice) {
-                    case 1:
-                        borrowBook(books, logInUser);
-                        break;
-                    case 2:
-                        searchBooks();
-                        break;
-                    case 3:
+                    case 1:  borrowBook(books, logInUser); break;
+                    //case 2:returnBook(books, logInUser); break;
+                    case 3: searchBooks(); break;
+                    case 4: 
                         cout << "Logging out.\n";
                         break;
                     default:
                         cout << "Invalid choice. Try again.\n";
                     }
-                } while (userChoice != 3);
+                } while (userChoice != 4);
             }
             break;
 
-        case 4:
+        case 5:
             cout << "Exiting the system. Goodbye!\n";
             break;
 
         default:
             cout << "Invalid choice. Try again.\n";
         }
-    } while (choice != 4);
+    } while (choice != 5);
 
     return 0;
 }
 
-    
