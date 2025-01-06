@@ -46,28 +46,32 @@ bool bookkeeperLogin(bool& BookkeeperLogIn) {
 // Function to login as a user
 
 bool userLogin(User& logInUser) {
-    string email, password;
-    bool  log = false;  // Flag to indicate login status
+    string input, password;
+    bool log = false;  // Flag to indicate login status
 
-    cout << "Enter email: ";
-    cin >> email;
+    // Prompt for email/username and password
+    cout << "Enter email or username: ";
+    cin >> input;
     cout << "Enter password: ";
     cin >> password;
 
     ifstream file(USER_FILE);
-    if (!file) {
-        cout << "Error: Could not open user file.\n";
+    if (!file.is_open()) {
+        cerr << "Error: Could not open file '" << USER_FILE << "'\n";
         return false;
     }
 
-    string storedEmail, storedPassword;
+    string storedEmail, storedUserName, storedPassword;
 
-    while (file >> storedEmail >> storedPassword) {
-        if (email == storedEmail && password == storedPassword) {
-            log = true;  // Set flag to true when credentials match
+    // Read user records from the file
+    while (file >> storedEmail >> storedUserName >> storedPassword) {
+        // Check if the input matches either the email or username
+        if ((input == storedEmail || input == storedUserName) && password == storedPassword) {
+            log = true;  // Credentials match
             logInUser.email = storedEmail;
+            logInUser.userName = storedUserName;
             logInUser.password = storedPassword;
-            break;  // Exit loop early as login is successful
+            break;  // Exit loop on successful login
         }
     }
 
@@ -77,11 +81,12 @@ bool userLogin(User& logInUser) {
         cout << "User logged in successfully.\n";
     }
     else {
-        cout << "Invalid email or password.\n";
+        cout << "Invalid email/username or password.\n";
     }
 
     return log;
 }
+
 
 // Function to register a new user
 
@@ -122,13 +127,16 @@ void registerUser() {
         return;
     }
 
-    // Save the user to the global user list
+    // Save the user to the global user list (temporary storage of user records)
     users.push_back(newUser);
-
+    
     // Append the new user to the user file
     ofstream fileOut(USER_FILE, ios::app);
     if (fileOut.is_open()) {
-        fileOut << newUser.email << " " << newUser.password << "\n";
+        fileOut 
+            << newUser.email << "\n"
+            << newUser.userName << "\n"
+            << newUser.password << "\n";
         fileOut.close();
         cout << "User registered successfully.\n";
     }

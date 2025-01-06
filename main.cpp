@@ -1,6 +1,6 @@
 #include "user.h"
 #include "book.h"
-//#include "menu.h"
+#include "menu.h"
 #include<iostream>
 using namespace std;
 
@@ -63,7 +63,7 @@ int main() {
 
                     switch (userChoice) {
                     case 1:  borrowBook(books, logInUser); break;
-                    //case 2:returnBook(books, logInUser); break;
+                    case 2:returnBook(books, logInUser); break;
                     case 3: searchBooks(); break;
                     case 4: 
                         cout << "Logging out.\n";

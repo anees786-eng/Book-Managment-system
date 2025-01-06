@@ -2,7 +2,7 @@
 #ifndef BOOK_H
 #define BOOK_H
 #include"user.h"
-
+#include<stdexcept>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -31,23 +31,26 @@ vector<Book> books;
 vector<int>borrowbook;
 //vector<User> users;
 // Function to save books to a file
-void saveBooks(const string& filename = "books.txt") {
-    ofstream outfile(filename, ios::app);
+
+void saveBooksToFile(const string& filename = "books.txt") {
+    ofstream outfile(filename);
     if (!outfile.is_open()) {
         cout << "Error: Could not open the file for saving books.\n";
         return;
     }
 
     for (const auto& book : books) {
-        outfile << book.bookID << "\n "
-            << book.title << "\n"
-            << book.authorName << "\n"
+        outfile
+            << book.bookID << "\n"
+           << book.title << "\n"
+             << book.authorName << "\n"
             << book.year << "\n"
             << book.availableCopies << "\n";
+           
     }
     outfile.close();
-
 }
+
 
 // Function to add a new book
 
@@ -71,6 +74,7 @@ void addBook(const string& filename = "books.txt") {
             getline(inFile, title);  // Read title
             getline(inFile, authorName);  // Read author name
             inFile >> availableCopies;  // Read available copies
+            inFile.ignore();
             inFile >> year;  // Read year
             inFile.ignore();  // Ignore the newline after year
 
@@ -106,21 +110,10 @@ void addBook(const string& filename = "books.txt") {
         // Add the book to the vector
         books.push_back(newBook);
 
-        // Save the updated list of books to the file
-        ofstream outFile(filename, ios::app);
-        if (!outFile) {
-            throw runtime_error("Error: Could not open the file for saving.");
-        }
-
-        outFile << newBook.bookID << "\n"
-            << newBook.title << "\n"
-            << newBook.authorName << "\n"
-            << newBook.availableCopies << "\n"
-            << newBook.year << "\n";
-        outFile.close();
+        
 
         cout << "Book added successfully.\n";
-
+        saveBooksToFile();
     }
     catch (const runtime_error& e) {
         cerr << e.what() << "\n";
@@ -130,9 +123,7 @@ void addBook(const string& filename = "books.txt") {
         cin.clear();  // Clear the error flag
         cin.ignore(numeric_limits<streamsize>::max(), '\n');  // Ignore invalid input
     }
-    catch (...) {
-        cerr << "An unexpected error occurred.\n";
-    }
+   
 }
 
 // Function to display all books
@@ -152,11 +143,12 @@ void displayBooks(const string& filename = "books.txt") {
         inFile.ignore();  // Ignore the newline after the bookID
         getline(inFile, title);
         getline(inFile, authorName);
-        inFile >> availableCopies;
         inFile >> year;
+        inFile.ignore();
+        inFile >> availableCopies;
         inFile.ignore();  // Ignore the newline after the year
 
-        books.push_back({ bookID, title, authorName, availableCopies, year });
+        books.push_back({ bookID, title, authorName, year,availableCopies});
     }
     if (books.empty()) {
         cout << "No books available.\n";
@@ -186,11 +178,11 @@ void updateBook(const string& filename = "books.txt") {
         inFile.ignore();  // Ignore the newline after the bookID
         getline(inFile, title);
         getline(inFile, authorName);
-        inFile >> availableCopies;
         inFile >> year;
+        inFile >> availableCopies;
         inFile.ignore();  // Ignore the newline after the year
 
-        books.push_back({ bookID, title, authorName, availableCopies, year });
+        books.push_back({ bookID, title, authorName, year,availableCopies});
 
 
         int bookID;
@@ -242,11 +234,12 @@ void searchBooks(const string& filename = "books.txt") {
         inFile.ignore();  // Ignore the newline after the bookID
         getline(inFile, title);
         getline(inFile, authorName);
-        inFile >> availableCopies;
         inFile >> year;
+        inFile >> availableCopies;
+      
         inFile.ignore();  // Ignore the newline after the year
 
-        books.push_back({ bookID, title, authorName, availableCopies, year });
+        books.push_back({ bookID, title, authorName, year,availableCopies});
     }
     cout << "Enter book title or author to search: ";
     getline(cin, rol);
@@ -268,12 +261,10 @@ void searchBooks(const string& filename = "books.txt") {
     }
 }
 
-
 void deletebooks(const string& filename = "books.txt") {
-    //int bookID;
     ifstream inFile(filename);
     if (!inFile) {
-        cerr << "Error: Could not open file '" << filename << "'\n";
+    cout << "Error: Could not open file '" << filename << "'\n";
         return;
     }
 
@@ -281,53 +272,79 @@ void deletebooks(const string& filename = "books.txt") {
     int bookID, year, availableCopies;
     string title, authorName;
 
+    // Read books from file into a vector
     while (inFile >> bookID) {
         inFile.ignore();  // Ignore the newline after the bookID
         getline(inFile, title);
         getline(inFile, authorName);
-        inFile >> availableCopies;
         inFile >> year;
+        inFile >> availableCopies;
         inFile.ignore();  // Ignore the newline after the year
 
-        books.push_back({ bookID, title, authorName, availableCopies, year });
+        books.push_back({ bookID, title, authorName, year,availableCopies});
     }
+    inFile.close();  // Close the input file
+
     cout << "Enter Book ID to delete: ";
     cin >> bookID;
+
+    // Find and delete the book from the vector
+    bool found = false;
     for (auto it = books.begin(); it != books.end(); ) {
         if (it->bookID == bookID) {
             it = books.erase(it); // Erase returns the next iterator
-            cout << "book  delete successfully.\n";
+            found = true;
+            cout << "Book deleted successfully.\n";
+            break; // Exit after deleting the book
+        } else {
+           it;
         }
-
-        else {
-            cout << "Book not found.\n";
-        }
-
     }
-}
-void borrowBook(vector<Book>& books, User& user) {
-    //int bookID;
-    const string& filename = "books.txt";
-    ifstream inFile(filename);
-    if (!inFile) {
-        cout << "Error: Could not open file '" << filename << "'\n";
+
+    if (!found) {
+        cout << "book not found. \n";
+    }
+
+    // Write updated vector back to the file
+    ofstream outFile(filename);
+    if (!outFile) {
+    cout << "Error: Could not open file '" << filename << "' for writing.\n";
         return;
     }
 
-
-    int bookID, year, availableCopies;
-    string title, authorName;
-
-    while (inFile >> bookID) {
-        inFile.ignore();  // Ignore the newline after the bookID
-        getline(inFile, title);
-        getline(inFile, authorName);
-        inFile >> availableCopies;
-        inFile >> year;
-        inFile.ignore();  // Ignore the newline after the year
-
-        books.push_back({ bookID, title, authorName, availableCopies, year });
+    for (const auto& book : books) {
+        outFile << book.bookID << "\n"
+            << book.title << "\n"
+            << book.authorName << "\n"
+            << book.year << "\n"
+            << book.availableCopies << "\n";
+       
     }
+    outFile.close();
+}
+
+
+void borrowBook(vector<Book>& books, User& user) {
+    //int bookID;
+    const string& filename = "books.txt";
+        ifstream inFile(filename);
+        if (!inFile) {
+            cout << "Error: Could not open file '" << filename << "'\n";
+            return;
+        }
+        int bookID, year, availableCopies;
+        string title, authorName;
+    
+        while (inFile >> bookID) {
+            inFile.ignore();  // Ignore the newline after the bookID
+            getline(inFile, title);
+            getline(inFile, authorName);
+            inFile >> year;
+            inFile >> availableCopies;
+            inFile.ignore();  // Ignore the newline after the year
+    
+            books.push_back({ bookID, title, authorName, year,availableCopies});
+        }
     cout << "Enter book ID to borrow: ";
     cin >> bookID;
 
@@ -335,35 +352,102 @@ void borrowBook(vector<Book>& books, User& user) {
     for (auto& book : books) {
         if (book.bookID == bookID) { // Check if book ID matches
             if (book.availableCopies > 0) {
-                // Deduct one copy and add book ID to user's borrowedBooks
+                // Deduct one copy
                 book.availableCopies--;
-                //user.borrowBook; // Add bookID to the user's list
-                cout << "Book borrowed successfully.\n";
+
+                // Add bookID to user's borrowedBooks list
+                user.borrowedBooks.push_back(bookID);
+
+                // Save bookID to user-specific file
+                string userFile =  "userid.txt";
+                ofstream outFile(userFile, ios::app);  // Open in append mode
+                if (outFile) {
+                    outFile << bookID << "\n";  // Save the bookID
+                    outFile.close();
+                    cout << "Book borrowed successfully and record in file '" << userFile << "'.\n";
+                }
+                else {
+                    cout << "Error: Could not write to user file.\n";
+                }
+
+                return;  // Exit after successful borrowing
             }
             else {
                 cout << "No copies available for this book.\n";
+                return;
             }
-            return; // Exit after processing the book
         }
     }
-}
+
     // If no book was found with the given ID
-  /*  cout << "Book not found.\n";
-}*/
+    cout << "Book not found.\n";
+}
 
-     
-//void returnBook(vector<Book>& books, User& user) {
-//    int bookID;
-//    cout << "Enter Book ID to return: ";
-//    cin >> bookID;
-////
-//    // Check if the user has borrowed this book
-//    auto it = find(user.borrowedBooks.begin(), user.borrowedBooks.end(), bookID);
-//    if (it == user.borrowedBooks.end()) {
-//        cout << "You have not borrowed this book.\n";
-//        user.borrowedBooks.erase(it);
-//        return;
-//    }
+void returnBook(vector<Book>& books, User& user) {
+    //int bookID;
+    const string& userfile = "userid.txt";
+    ifstream inFile(userfile);
+    if (!inFile) {
+        cout << "Error: Could not open file '" << userfile << "'\n";
+        return;
+    }
+    int bookID;
+    while (inFile >> bookID) {
+        user.borrowedBooks.push_back(bookID);
+        inFile.ignore();  // Ignore the newline after the bookID
+        books.push_back({ bookID });
+    }
+    cout << "Enter Book ID to return: ";
+    cin >> bookID;
 
+    // Check if the user has borrowed this book
+    auto it = find(user.borrowedBooks.begin(), user.borrowedBooks.end(), bookID);
+    if (it == user.borrowedBooks.end()) {
+        cout << "You have not borrowed this book.\n";
+        return;
+    }
 
+    // Search for the book in the library
+    for (auto& book : books) {
+        if (book.bookID == bookID) { // If book found
+            book.availableCopies++;  // Increment available copies in the library
+
+            // Remove the book ID from the user's borrowedBooks list
+            user.borrowedBooks.erase(it);
+
+            // Update the user's borrowed book file
+            string userFile =  "userid.txt";
+            ifstream inFile(userFile);
+            vector<int> currentBorrowed;
+
+            if (inFile) {
+                int id;
+                while (inFile >> id) {
+                    if (id != bookID) { 
+                        currentBorrowed.push_back(id);
+                    }
+                }
+                inFile.close();
+            }
+
+            // Write updated list back to the user's file
+            ofstream outFile(userFile);
+            if (outFile) {
+                for (int id : currentBorrowed) {
+                    outFile << id << "\n";
+                }
+                outFile.close();
+            }
+            else {
+                cout << "Error: Could not update user's borrowed file.\n";
+            }
+
+            cout << "Book returned successfully.\n";
+            return;
+        }
+    }
+
+    // If the book is not found in the library
+    cout << "Book not found in the library.\n";
+}
 #endif
