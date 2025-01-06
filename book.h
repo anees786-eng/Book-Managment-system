@@ -32,24 +32,24 @@ vector<int>borrowbook;
 //vector<User> users;
 // Function to save books to a file
 
-void saveBooksToFile(const string& filename = "books.txt") {
-    ofstream outfile(filename);
-    if (!outfile.is_open()) {
-        cout << "Error: Could not open the file for saving books.\n";
-        return;
-    }
-
-    for (const auto& book : books) {
-        outfile
-            << book.bookID << "\n"
-           << book.title << "\n"
-             << book.authorName << "\n"
-            << book.year << "\n"
-            << book.availableCopies << "\n";
-           
-    }
-    outfile.close();
-}
+//void saveBooksToFile(const string& filename = "books.txt") {
+//    ofstream outfile(filename);
+//    if (!outfile.is_open()) {
+//        cout << "Error: Could not open the file for saving books.\n";
+//        return;
+//    }
+//
+//    for (const auto& book : books) {
+//        outfile
+//            << book.bookID << "\n"
+//           << book.title << "\n"
+//             << book.authorName << "\n"
+//            << book.year << "\n"
+//            << book.availableCopies << "\n";
+//           
+//    }
+//    outfile.close();
+//}
 
 
 // Function to add a new book
@@ -111,24 +111,24 @@ void addBook(const string& filename = "books.txt") {
         books.push_back(newBook);
 
         //// Save the updated list of books to the file
-        //ofstream outFile(filename, ios::app);
-        //if (!outFile) {
-        //    throw runtime_error("Error: Could not open the file for saving.");
-        //}
+        ofstream outFile(filename, ios::app);
+        if (!outFile) {
+            throw runtime_error("Error: Could not open the file for saving.");
+        }
 
-        //outFile << newBook.bookID << "\n"
-        //    << newBook.title << "\n"
-        //    << newBook.authorName << "\n"
-        //    << newBook.year << "\n"
-        //<< newBook.availableCopies << "\n";
-        //
-        //outFile.close();
-
+        outFile << newBook.bookID << "\n"
+            << newBook.title << "\n"
+            << newBook.authorName << "\n"
+            << newBook.year << "\n"
+        << newBook.availableCopies << "\n";
+        
+        outFile.close();
+      
         cout << "Book added successfully.\n";
-        saveBooksToFile();
+        
     }
     catch (const runtime_error& e) {
-        cerr << e.what() << "\n";
+        cout << e.what() << "\n";
     }
     catch (const invalid_argument& e) {
         cerr << e.what() << "\n";
@@ -175,6 +175,7 @@ void displayBooks(const string& filename = "books.txt") {
 
 
 // Function to update a book's details
+
 void updateBook(const string& filename = "books.txt") {
     ifstream inFile(filename);
     if (!inFile) {
@@ -186,48 +187,74 @@ void updateBook(const string& filename = "books.txt") {
     int bookID, year, availableCopies;
     string title, authorName;
 
+    // Read all books from the file into the vector
     while (inFile >> bookID) {
-        inFile.ignore();  // Ignore the newline after the bookID
+        inFile.ignore(); // Ignore the newline after the bookID
         getline(inFile, title);
         getline(inFile, authorName);
         inFile >> year;
         inFile >> availableCopies;
-        inFile.ignore();  // Ignore the newline after the year
+        inFile.ignore(); // Ignore the newline after the year
 
-        books.push_back({ bookID, title, authorName, year,availableCopies});
+        books.push_back({ bookID, title, authorName, year, availableCopies });
+    }
+    inFile.close();
 
+    // Ask for the book ID to update
+    cout << "Enter Book ID to update: ";
+    cin >> bookID;
+    cin.ignore();
 
-        int bookID;
-        cout << "Enter Book ID to update: ";
-        cin >> bookID;
-        cin.ignore();
+    bool bookFound = false;
 
-        for (auto& book : books) {
-            if (book.bookID == bookID) {
-                cout << "Current Title: " << book.title << "\n";
-                cout << "Enter New Title: ";
-                getline(cin, book.title);
+    // Search for the book and update its details
+    for (auto& book : books) {
+        if (book.bookID == bookID) {
+            bookFound = true;
 
-                cout << "Current Author: " << book.authorName << "\n";
-                cout << "Enter New Author: ";
-                getline(cin, book.authorName);
+            cout << "Current Title: " << book.title << "\n";
+            cout << "Enter New Title: ";
+            getline(cin, book.title);
 
-                cout << "Current Year: " << book.year << "\n";
-                cout << "Enter New Year: ";
-                cin >> book.year;
+            cout << "Current Author: " << book.authorName << "\n";
+            cout << "Enter New Author: ";
+            getline(cin, book.authorName);
 
-                cout << "Current Available Copies: " << book.availableCopies << "\n";
-                cout << "Enter New Available Copies: ";
-                cin >> book.availableCopies;
+            cout << "Current Year: " << book.year << "\n";
+            cout << "Enter New Year: ";
+            cin >> book.year;
 
-                cout << "Book details updated successfully.\n";
-                return;
-            }
+            cout << "Current Available Copies: " << book.availableCopies << "\n";
+            cout << "Enter New Available Copies: ";
+            cin >> book.availableCopies;
+
+            cout << "Book details updated successfully.\n";
+            break;
         }
-        cout << "Book with ID " << bookID << " not found.\n";
     }
 
+    if (!bookFound) {
+        cout << "Book not found.\n";
+        return;
+    }
+
+    // Save the updated list of books back to the file
+    ofstream outFile(filename);
+    if (!outFile) {
+        cout << "Error: Could not open the file for saving.\n";
+        return;
+    }
+
+    for (const auto& book : books) {
+        outFile << book.bookID << "\n"
+            << book.title << "\n"
+            << book.authorName << "\n"
+            << book.year << "\n"
+            << book.availableCopies << "\n";
+    }
+    outFile.close();
 }
+
 // Function to search for books by title or author
 void searchBooks(const string& filename = "books.txt") {
     string rol;
