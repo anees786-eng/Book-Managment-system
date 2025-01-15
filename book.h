@@ -29,31 +29,7 @@ struct Book {
 // Vector to store books
 vector<Book> books;
 vector<int>borrowbook;
-//vector<User> users;
-// Function to save books to a file
-
-//void saveBooksToFile(const string& filename = "books.txt") {
-//    ofstream outfile(filename);
-//    if (!outfile.is_open()) {
-//        cout << "Error: Could not open the file for saving books.\n";
-//        return;
-//    }
-//
-//    for (const auto& book : books) {
-//        outfile
-//            << book.bookID << "\n"
-//           << book.title << "\n"
-//             << book.authorName << "\n"
-//            << book.year << "\n"
-//            << book.availableCopies << "\n";
-//           
-//    }
-//    outfile.close();
-//}
-
-
 // Function to add a new book
-
 void addBook(const string& filename = "books.txt") {
     Book newBook;
 
@@ -106,9 +82,6 @@ void addBook(const string& filename = "books.txt") {
 
         // Set the new book's ID to the next available bookID
         newBook.bookID = nextbookID;
-
-        // Add the book to the vector
-        books.push_back(newBook);
 
         //// Save the updated list of books to the file
         ofstream outFile(filename, ios::app);
@@ -179,7 +152,7 @@ void displayBooks(const string& filename = "books.txt") {
 void updateBook(const string& filename = "books.txt") {
     ifstream inFile(filename);
     if (!inFile) {
-        cerr << "Error: Could not open file '" << filename << "'\n";
+        cout << "Error: Could not open file '" << filename << "'\n";
         return;
     }
 
@@ -197,6 +170,8 @@ void updateBook(const string& filename = "books.txt") {
         inFile.ignore(); // Ignore the newline after the year
 
         books.push_back({ bookID, title, authorName, year, availableCopies });
+
+
     }
     inFile.close();
 
@@ -204,15 +179,10 @@ void updateBook(const string& filename = "books.txt") {
     cout << "Enter Book ID to update: ";
     cin >> bookID;
     cin.ignore();
-
-    bool bookFound = false;
-
     // Search for the book and update its details
     for (auto& book : books) {
         if (book.bookID == bookID) {
-            bookFound = true;
-
-            cout << "Current Title: " << book.title << "\n";
+          cout << "Current Title: " << book.title << "\n";
             cout << "Enter New Title: ";
             getline(cin, book.title);
 
@@ -231,11 +201,9 @@ void updateBook(const string& filename = "books.txt") {
             cout << "Book details updated successfully.\n";
             break;
         }
-    }
-
-    if (!bookFound) {
-        cout << "Book not found.\n";
-        return;
+        else {
+            cout << "books not found.\n";
+        }
     }
 
     // Save the updated list of books back to the file

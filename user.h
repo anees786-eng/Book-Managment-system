@@ -87,13 +87,9 @@ bool userLogin(User& logInUser) {
     return log;
 }
 
-
 // Function to register a new user
-
 void registerUser() {
     User newUser;
-    bool emailExists = false;  // Flag to indicate if the email already exists
-
     cout << "Enter email: ";
     cin.ignore(); // To clear the input buffer
     getline(cin, newUser.email);
@@ -110,8 +106,9 @@ void registerUser() {
         string storedEmail, storedPassword;
         while (fileIn >> storedEmail >> storedPassword) {
             if (storedEmail == newUser.email) {
-                emailExists = true;  // Set flag to true if email is found
-                break;  // No need to continue checking
+                cout << "Error: Email already exists. Please use a different email.\n";
+                fileIn.close(); // Close the file before returning
+                return;         // Exit the function
             }
         }
         fileIn.close();
@@ -120,21 +117,10 @@ void registerUser() {
         cout << "Error: Could not open the user file for reading.\n";
         return;
     }
-
-    // If email exists, notify the user and exit the function
-    if (emailExists) {
-        cout << "Error: Email already exists. Please use a different email.\n";
-        return;
-    }
-
-    // Save the user to the global user list (temporary storage of user records)
-    users.push_back(newUser);
-
     // Append the new user to the user file
     ofstream fileOut(USER_FILE, ios::app);
     if (fileOut.is_open()) {
-        fileOut
-            << newUser.email << "\n"
+        fileOut << newUser.email << "\n"
             << newUser.userName << "\n"
             << newUser.password << "\n";
         fileOut.close();
@@ -144,6 +130,8 @@ void registerUser() {
         cout << "Error: Could not open the user file for writing.\n";
     }
 }
+
+
 //function use to borrow books
 void borrowBook(vector<Book>& books, User& user) {
     //int bookID;
