@@ -1,7 +1,5 @@
-
 #ifndef BOOK_H
 #define BOOK_H
-
 #include<stdexcept>
 #include <string>
 #include <iostream>
@@ -39,12 +37,10 @@ void addBook(const string& filename = "books.txt") {
         if (!inFile) {
             throw runtime_error("Error: Could not open the file for reading.");
         }
-
         int nextbookID = 1;  // Default to 1 if no file or no books
         int bookID, year;
         string title, authorName;
         int availableCopies;
-
         while (inFile >> bookID) {  // Read until end of file
             inFile.ignore();  // Ignore the value
             getline(inFile, title);  // Read title
@@ -53,7 +49,6 @@ void addBook(const string& filename = "books.txt") {
             inFile.ignore();
             inFile >> year;  // Read year
             inFile.ignore();  // Ignore the newline after year
-
             // Update nextbookID to be the highest bookID + 1
             if (bookID >= nextbookID) {
                 nextbookID = bookID + 1;
@@ -65,10 +60,8 @@ void addBook(const string& filename = "books.txt") {
         cout << "Enter Book Title: ";
         cin.ignore();  // To clear any remaining newline
         getline(cin, newBook.title);
-
         cout << "Enter Author Name: ";
-        getline(cin, newBook.authorName);
-
+        getline(cin, newBook.authorName); 
         cout << "Enter Publication Year: ";
         if (!(cin >> newBook.year)) {
             throw invalid_argument("Invalid input for year. Please enter a valid number.");
@@ -88,25 +81,22 @@ void addBook(const string& filename = "books.txt") {
         if (!outFile) {
             throw runtime_error("Error: Could not open the file for saving.");
         }
-
         outFile << newBook.bookID << "\n"
             << newBook.title << "\n"
             << newBook.authorName << "\n"
             << newBook.year << "\n"
-        << newBook.availableCopies << "\n";
-        
-        outFile.close();
-      
-        cout << "Book added successfully.\n";
-        
+            << newBook.availableCopies << "\n";
+                outFile.close();
+             cout << "Book added successfully.\n";
     }
     catch (const runtime_error& e) {
         cout << e.what() << "\n";
     }
     catch (const invalid_argument& e) {
-        cerr << e.what() << "\n";
+        cout << e.what() << "\n";
         cin.clear();  // Clear the error flag
         cin.ignore(numeric_limits<streamsize>::max(), '\n');  // Ignore invalid input
+        
     }
    
 }
@@ -116,7 +106,7 @@ void addBook(const string& filename = "books.txt") {
 void displayBooks(const string& filename = "books.txt") {
     ifstream inFile(filename);
     if (!inFile) {
-        cerr << "Error: Could not open file '" << filename << "'\n";
+        cout << "Error: Could not open file '" << filename << "'\n";
         return;
     }
 
@@ -146,9 +136,7 @@ void displayBooks(const string& filename = "books.txt") {
     }
 }
 
-
 // Function to update a book's details
-
 void updateBook(const string& filename = "books.txt") {
     ifstream inFile(filename);
     if (!inFile) {
@@ -170,9 +158,7 @@ void updateBook(const string& filename = "books.txt") {
         inFile.ignore(); // Ignore the newline after the year
 
         books.push_back({ bookID, title, authorName, year, availableCopies });
-
-
-    }
+     }
     inFile.close();
 
     // Ask for the book ID to update
@@ -185,19 +171,15 @@ void updateBook(const string& filename = "books.txt") {
           cout << "Current Title: " << book.title << "\n";
             cout << "Enter New Title: ";
             getline(cin, book.title);
-
             cout << "Current Author: " << book.authorName << "\n";
             cout << "Enter New Author: ";
             getline(cin, book.authorName);
-
             cout << "Current Year: " << book.year << "\n";
             cout << "Enter New Year: ";
             cin >> book.year;
-
             cout << "Current Available Copies: " << book.availableCopies << "\n";
             cout << "Enter New Available Copies: ";
             cin >> book.availableCopies;
-
             cout << "Book details updated successfully.\n";
             break;
         }
@@ -205,7 +187,6 @@ void updateBook(const string& filename = "books.txt") {
             cout << "books not found.\n";
         }
     }
-
     // Save the updated list of books back to the file
     ofstream outFile(filename);
     if (!outFile) {
@@ -224,12 +205,12 @@ void updateBook(const string& filename = "books.txt") {
 }
 
 // Function to search for books by title or author
-void searchBooks(const string& filename = "books.txt") {
-    string rol;
-    cin.ignore();
+ void searchBooks(const string& filename = "books.txt") {
+     string rol;
+    cin.ignore();  // Clear input buffer
     ifstream inFile(filename);
     if (!inFile) {
-        cerr << "Error: Could not open file '" << filename << "'\n";
+        cout << "Error: Could not open file '" << filename << "'\n";
         return;
     }
 
@@ -237,36 +218,53 @@ void searchBooks(const string& filename = "books.txt") {
     int bookID, year, availableCopies;
     string title, authorName;
 
+    // Load books from the file into the vector
     while (inFile >> bookID) {
         inFile.ignore();  // Ignore the newline after the bookID
         getline(inFile, title);
         getline(inFile, authorName);
         inFile >> year;
         inFile >> availableCopies;
-      
         inFile.ignore();  // Ignore the newline after the year
-
-        books.push_back({ bookID, title, authorName, year,availableCopies});
+        books.push_back({ bookID, title, authorName, year, availableCopies });
     }
+    inFile.close();  // Close the file after reading
+
+    // Search for books
     cout << "Enter book title or author to search: ";
     getline(cin, rol);
-
-    bool found = false;
-    for (const auto& book : books) {
+    for (auto& book : books) {
         if (book.title.find(rol) != string::npos || book.authorName.find(rol) != string::npos) {
+            
             cout << "Book ID: " << book.bookID
                 << ", Title: " << book.title
                 << ", Author: " << book.authorName
                 << ", Year: " << book.year
                 << ", Available Copies: " << book.availableCopies << "\n";
-            found = true;
+            
+            // Save the updated books back to the file
+            ofstream outFile(filename);
+            if (!outFile) {
+                cout << "Error: Could not open file '" << filename << "' for writing.\n";
+                return;
+            }
+            for (const auto& book : books) {
+                outFile << book.bookID << "\n"
+                    << book.title << "\n"
+                    << book.authorName << "\n"
+                    << book.year << "\n"
+                    << book.availableCopies << "\n";
+            }
+            outFile.close();
+            return;     // Exit the loop after processing the first found book
         }
     }
 
-    if (!found) {
-        cout << "No books found for the search .\n";
+     {
+        cout << "No books found for the search.\n";
     }
 }
+
 
 void deletebooks(const string& filename = "books.txt") {
     ifstream inFile(filename);
@@ -274,11 +272,9 @@ void deletebooks(const string& filename = "books.txt") {
     cout << "Error: Could not open file '" << filename << "'\n";
         return;
     }
-
     vector<Book> books;
     int bookID, year, availableCopies;
     string title, authorName;
-
     // Read books from file into a vector
     while (inFile >> bookID) {
         inFile.ignore();  // Ignore the newline after the bookID
@@ -287,14 +283,11 @@ void deletebooks(const string& filename = "books.txt") {
         inFile >> year;
         inFile >> availableCopies;
         inFile.ignore();  // Ignore the newline after the year
-
         books.push_back({ bookID, title, authorName, year,availableCopies});
     }
-    inFile.close();  // Close the input file
-
+    inFile.close();  // Close the input fil
     cout << "Enter Book ID to delete: ";
     cin >> bookID;
-
     // Find and delete the book from the vector
     bool found = false;
     for (auto it = books.begin(); it != books.end(); ) {
@@ -307,7 +300,6 @@ void deletebooks(const string& filename = "books.txt") {
          ++it;
         }
     }
-
     if (!found) {
         cout << "book not found. \n";
     }
@@ -329,7 +321,4 @@ void deletebooks(const string& filename = "books.txt") {
     }
     outFile.close();
 }
-
-
-
 #endif

@@ -20,10 +20,10 @@ int main() {
 
             // Validate the input
             if (cin.fail()) {
-                cin.clear(); // Clear the error flag
-                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
+                cin.clear(); 
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
                 cout << "Invalid input. Please enter a number between 1 and 4.\n";
-                continue; // Restart the loop
+                continue; 
             }
 
             switch (choice) {

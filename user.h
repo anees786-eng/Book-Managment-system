@@ -30,7 +30,6 @@ bool bookkeeperLogin(bool& BookkeeperLogIn) {
     cin >> email;
     cout << "Enter bookkeeper password: ";
     cin >> password;
-
     if (email == BOOKKEEPER_EMAIL && password == BOOKKEEPER_PASSWORD) {
         BookkeeperLogIn = true;
         cout << "Bookkeeper logged in successfully.\n";
@@ -54,7 +53,6 @@ bool userLogin(User& logInUser) {
     cin >> input;
     cout << "Enter password: ";
     cin >> password;
-
     ifstream file(USER_FILE);
     if (!file.is_open()) {
         cerr << "Error: Could not open file '" << USER_FILE << "'\n";
@@ -121,8 +119,8 @@ void registerUser() {
     ofstream fileOut(USER_FILE, ios::app);
     if (fileOut.is_open()) {
         fileOut << newUser.email << "\n"
-            << newUser.userName << "\n"
-            << newUser.password << "\n";
+        << newUser.userName << "\n"
+        << newUser.password << "\n";
         fileOut.close();
         cout << "User registered successfully.\n";
     }
@@ -131,19 +129,78 @@ void registerUser() {
     }
 }
 
-
 //function use to borrow books
+//void borrowBook(vector<Book>& books, User& user) {
+//    //int bookID;
+//    const string& filename = "books.txt";
+//    ifstream inFile(filename);
+//    if (!inFile) {
+//        cout << "Error: Could not open file '" << filename << "'\n";
+//        return;
+//    }
+//    int bookID, year, availableCopies;
+//    string title, authorName;
+//
+//    while (inFile >> bookID) {
+//        inFile.ignore();  // Ignore the newline after the bookID
+//        getline(inFile, title);
+//        getline(inFile, authorName);
+//        inFile >> year;
+//        inFile >> availableCopies;
+//        inFile.ignore();  // Ignore the newline after the year
+//
+//        books.push_back({ bookID, title, authorName, year,availableCopies });
+//    }
+//    cout << "Enter book ID to borrow: ";
+//    cin >> bookID;
+//
+//    // Search for the book by ID
+//    for (auto& book : books) {
+//        if (book.bookID == bookID) { // Check if book ID matche
+//            if (book.availableCopies > 0) {
+//                // Deduct one copy
+//                book.availableCopies--;
+//                // Add bookID to user's borrowedBooks list
+//                user.borrowedBooks.push_back(bookID);
+//
+//                // Save bookID to user-specific file
+//                string userFile = "userid.txt";
+//                ofstream outFile(userFile, ios::app);  // Open in append mode
+//                if (outFile) {
+//                    outFile << bookID << "\n";  // Save the bookID
+//                    outFile.close();
+//                    cout << "Book borrowed successfully and store in file '" << userFile << "'.\n";
+//                }
+//                else {
+//                     cout << "Error: Could not found book .\n";
+//                 }
+//
+//                return;  // Exit after successful borrowing
+//            }
+//            else {
+//                cout << "No copies available for this book.\n";
+//                return;
+//            }
+//        }
+//    }
+// // If no matching book ID was found
+//{
+//    cout << "Error: Could not find a book with the specified ID.\n";
+//}
+//}
+
 void borrowBook(vector<Book>& books, User& user) {
-    //int bookID;
     const string& filename = "books.txt";
     ifstream inFile(filename);
     if (!inFile) {
         cout << "Error: Could not open file '" << filename << "'\n";
         return;
     }
+
     int bookID, year, availableCopies;
     string title, authorName;
 
+    // Load books from the file into the vector
     while (inFile >> bookID) {
         inFile.ignore();  // Ignore the newline after the bookID
         getline(inFile, title);
@@ -152,14 +209,18 @@ void borrowBook(vector<Book>& books, User& user) {
         inFile >> availableCopies;
         inFile.ignore();  // Ignore the newline after the year
 
-        books.push_back({ bookID, title, authorName, year,availableCopies });
+        books.push_back({ bookID, title, authorName, year, availableCopies });
     }
+    inFile.close();  // Close the file after reading
+
     cout << "Enter book ID to borrow: ";
     cin >> bookID;
 
     // Search for the book by ID
+    //bool bookFound = false;
     for (auto& book : books) {
-        if (book.bookID == bookID) { // Check if book ID matches
+        if (book.bookID == bookID) {  // Check if book ID matches
+            //bookFound = true;
             if (book.availableCopies > 0) {
                 // Deduct one copy
                 book.availableCopies--;
@@ -168,17 +229,34 @@ void borrowBook(vector<Book>& books, User& user) {
                 user.borrowedBooks.push_back(bookID);
 
                 // Save bookID to user-specific file
-                string userFile = "userid.txt";
-                ofstream outFile(userFile, ios::app);  // Open in append mode
-                if (outFile) {
-                    outFile << bookID << "\n";  // Save the bookID
-                    outFile.close();
-                    cout << "Book borrowed successfully and store in file '" << userFile << "'.\n";
+                string userFile = "userid.txt";  // Replace with actual user ID-based filename
+                ofstream userOutFile(userFile, ios::app);  // Open in append mode
+                if (userOutFile) {
+                    userOutFile << bookID << "\n";  // Save the bookID
+                    userOutFile.close();
+                    cout << "Book borrowed successfully and stored in file '" << userFile << "'.\n";
                 }
                 else {
-                    cout << "Error: Could not write to user file.\n";
+                    cout << "Error: Could not write to user file '" << userFile << "'.\n";
+                    return;
                 }
 
+                // Update books.txt with the modified availableCopies
+                ofstream outFile(filename);
+                if (!outFile) {
+                    cout << "Error: Could not open file '" << filename << "' for writing.\n";
+                    return;
+                }
+
+                for (const auto& book : books) {
+                    outFile << book.bookID << "\n"
+                        << book.title << "\n"
+                        << book.authorName << "\n"
+                        << book.year << "\n"
+                        << book.availableCopies << "\n";
+                }
+                outFile.close();
+                
                 return;  // Exit after successful borrowing
             }
             else {
@@ -188,12 +266,17 @@ void borrowBook(vector<Book>& books, User& user) {
         }
     }
 
-
+    // If no matching book ID was found
+     {
+        cout << "Error: Could not find a book with the specified ID.\n";
+    }
 }
+
+
 //funtion use to return books.
 void returnBook(vector<Book>& books, User& user) {
     const string userFile = "userid.txt";
-
+    const string& filename = "books.txt";
     ifstream inFile(userFile);
     if (!inFile) {
         cout << "Error: Could not open file '" << userFile << "'\n";
@@ -208,10 +291,7 @@ void returnBook(vector<Book>& books, User& user) {
     }
     // Ask the user for the book ID to return
     cout << "Enter Book ID to return: ";
-    //int bookID;
-
     cin >> bookID;
-
     // Check if the user has borrowed this book
     auto it = find(user.borrowedBooks.begin(), user.borrowedBooks.end(), bookID);
     if (it == user.borrowedBooks.end()) {
@@ -228,23 +308,34 @@ void returnBook(vector<Book>& books, User& user) {
             user.borrowedBooks.erase(it);
 
             // Update the user's borrowed book file
-            ofstream outFile(userFile);
-            if (outFile) {
+            ofstream useroutFile(userFile);
+            if (useroutFile) {
                 for (int id : user.borrowedBooks) {
-                    outFile << id << "\n";
+                    useroutFile << id << "\n";
                 }
-                outFile.close();
+                useroutFile.close();
                 cout << "Book returned successfully.\n";
             }
-            else {
-                cout << "Error: Could not update user's borrowed file.\n";
+            // Update books.txt with the modified availableCopies
+            ofstream outFile(filename);
+            if (!outFile) {
+                cout << "Error: Could not open file '" << filename << "' for writing.\n";
+                return;
             }
 
+            for (const auto& book : books) {
+                outFile << book.bookID << "\n"
+                    << book.title << "\n"
+                    << book.authorName << "\n"
+                    << book.year << "\n"
+                    << book.availableCopies << "\n";
+            }
             return;
+
         }
     }
 
-    // If the book is not found in the library
+    // If book is not found in the library
     cout << "Book not found in the library.\n";
 }
 
