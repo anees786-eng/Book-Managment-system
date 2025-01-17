@@ -72,11 +72,9 @@ void addBook(const string& filename = "books.txt") {
         if (!(cin >> newBook.availableCopies)) {
             throw invalid_argument("Invalid input for available copies. Please enter a valid number.");
         }
-
         // Set the new book's ID to the next available bookID
         newBook.bookID = nextbookID;
-
-        //// Save the updated list of books to the file
+        // Save the updated list of books to the file
         ofstream outFile(filename, ios::app);
         if (!outFile) {
             throw runtime_error("Error: Could not open the file for saving.");
@@ -102,18 +100,15 @@ void addBook(const string& filename = "books.txt") {
 }
 
 // Function to display all books
-
 void displayBooks(const string& filename = "books.txt") {
     ifstream inFile(filename);
     if (!inFile) {
         cout << "Error: Could not open file '" << filename << "'\n";
         return;
     }
-
     vector<Book> books;
     int bookID, year, availableCopies;
     string title, authorName;
-
     while (inFile >> bookID) {
         inFile.ignore();  // Ignore the newline after the bookID
         getline(inFile, title);
@@ -122,7 +117,6 @@ void displayBooks(const string& filename = "books.txt") {
         inFile.ignore();
         inFile >> availableCopies;
         inFile.ignore();  // Ignore the newline after the year
-
         books.push_back({ bookID, title, authorName, year,availableCopies});
     }
     if (books.empty()) {
@@ -213,7 +207,6 @@ void updateBook(const string& filename = "books.txt") {
         cout << "Error: Could not open file '" << filename << "'\n";
         return;
     }
-
     vector<Book> books;
     int bookID, year, availableCopies;
     string title, authorName;
@@ -262,8 +255,8 @@ void updateBook(const string& filename = "books.txt") {
 
      {
         cout << "No books found for the search.\n";
-    }
-}
+        } 
+     }
 
 
 void deletebooks(const string& filename = "books.txt") {
@@ -310,7 +303,6 @@ void deletebooks(const string& filename = "books.txt") {
     cout << "Error: Could not open file '" << filename << "' for writing.\n";
         return;
     }
-
     for (const auto& book : books) {
         outFile << book.bookID << "\n"
             << book.title << "\n"
